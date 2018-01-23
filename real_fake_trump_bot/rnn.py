@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import rnn, cudnn_rnn
-from sklearn.model_selection import train_test_split
 from real_fake_trump_bot.preprocessor import Preprocessor
 import pdb
 
@@ -60,9 +59,6 @@ class RNN(Preprocessor):
         if not skip_preprocess:
             assert self.data_prepared, "Preprocess your data first"
 
-        # isolate training and testing data
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(self.twitter_data.one_hot_encoded.values)
-
         # initialize placeholders for input and output values
         self.X = tf.placeholder(tf.float32, [None, self.iterations, self.tweet_size])
         self.y = tf.placeholder(tf.float32, [None, len(list(self.label_encoder.classes_))])
@@ -95,7 +91,8 @@ class RNN(Preprocessor):
         with tf.Session() as sess:
             sess.run(initializer)
             i = 1
-            train_data = zip(self.x_train, self.y_train)
+            train_data = self.twitter_data.one_hot_encoded.values
+            # y is just a char offset of 1 from the X data
             while i < self.iterations:
                 batch_x, batch_y = train_data.next_batch(batch_size=self.batch_size)
                 batch_x = batch_x.reshape((self.batch_size, self.iterations, self.tweet_size))
