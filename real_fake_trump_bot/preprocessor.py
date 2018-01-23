@@ -21,7 +21,7 @@ class Preprocessor(object):
         self.tweet_tokenizer = TweetTokenizer()
         self.lexicon = Counter()
         self.label_encoder = LabelEncoder()
-        self.one_hot_encoder = OneHotEncoder()
+        self.one_hot_encoder = OneHotEncoder(sparse=False)
 
     def validate_twitter_data(self):
         assert type(self.twitter_data) is pd.DataFrame, 'tweets need to be a pandas DataFrame object.'
