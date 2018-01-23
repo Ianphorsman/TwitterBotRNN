@@ -1,16 +1,33 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow.contrib import rnn, cudnn_rnn
 from sklearn.model_selection import train_test_split
 from real_fake_trump_bot.preprocessor import Preprocessor
 import pdb
 
 class RNN(Preprocessor):
 
-    def __init__(self, tweets=None, learning_rate=0.0001, inspect_rate=50, hidden_layers=(16,8)):
+    def __init__(
+            self,
+            tweets=None,
+            learning_rate=0.0001,
+            iterations=1000,
+            batch_size=128,
+            inspect_rate=50,
+            hidden_layers=(16,8)
+    ):
+        # initialize Preprocessor with DataFrame of tweets / twitter data
         super().__init__(tweets=tweets)
+
+        # initialize hyperparameters and rnn attributes
         self.learning_rate = learning_rate
+        self.iterations = iterations
+        self.batch_size = batch_size
         self.inspect_rate = inspect_rate
         self.hidden_layers = hidden_layers
+
+        # initialize placeholders for input and output
+        self.X = tf.placeholder(tf.float32, [None, self.iterations, n_classes])
 
 
     def preprocess_tweets(self):
@@ -38,6 +55,18 @@ class RNN(Preprocessor):
         pass
 
     def test(self):
+        pass
+
+    def generate_tweet(self):
+        pass
+
+    def decode_tweet(self, generated_tweet):
+        return self.label_encoder.inverse_transform(np.argmax(generated_tweet, axis=0))
+
+    def print_tweet(self, decoded_tweet):
+        return ''.join(decoded_tweet)
+
+    def inspect(self):
         pass
 
 
