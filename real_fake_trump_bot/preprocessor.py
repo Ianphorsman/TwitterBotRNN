@@ -4,6 +4,7 @@ from collections import Counter
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import string
 from nltk.tokenize import word_tokenize, TweetTokenizer
+from nltk import pos_tag
 import _pickle as picklerick
 
 class Preprocessor(object):
@@ -48,13 +49,19 @@ class Preprocessor(object):
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.strip()
         print(self.twitter_data['Clean_Tweets'].values[0:5])
 
-    def extend_features(self, num_chars=False, split_words=False, tweet_tokenize=False, custom=None):
+    def extend_features(self, num_chars=False, split_words=False, tweet_tokenize=False, pos=False, custom=None):
         if num_chars:
             self.twitter_data.loc[:, 'num_chars'] = self.tweets.str.len()
         if split_words:
             self.twitter_data.loc[:, 'split_by_words'] = self.tweets.apply(lambda tweet: word_tokenize(tweet))
         if tweet_tokenize:
-            self.twitter_data.loc[:, 'tokenized_tweets'] = self.twitter_data.Clean_Tweets.apply(lambda tweet: self.tweet_tokenizer.tokenize(tweet))
+            self.twitter_data.loc[:, 'tokenized_tweets'] = self.twitter_data.Clean_Tweets.apply(
+                lambda tweet: self.tweet_tokenizer.tokenize(tweet)
+            )
+        if pos:
+            self.twitter_data.loc[:, 'part_of_speech'] = self.twitter_data.Clean_Tweets.apply(
+                lambda tweet: pos_tag(word_tokenize(tweet))
+            )
         if custom is not None:
             assert type(custom) is tuple, "Pass custom function as a tuple consisting of (feature_name, func)."
             self.twitter_data.loc[:, custom[0]] = self.tweets.apply(custom[1])
