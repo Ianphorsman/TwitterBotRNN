@@ -17,7 +17,7 @@ class Preprocessor(object):
         else:
             self.twitter_data = tweets
 
-        self.tweets = self.twitter_data.Tweet_Text
+        self.tweets = self.twitter_data[self.tweet_text_col]
         self.validate_twitter_data()
         self.tweet_tokenizer = TweetTokenizer()
         self.lexicon = Counter()
@@ -37,19 +37,28 @@ class Preprocessor(object):
     def save(self, obj, filename):
         picklerick.dump(obj, open("data/{}.p".format(filename), 'wb'))
 
-    def sanitize_tweets(self, remove=('links', 'punctuation'), strip=True, lower=True):
+    def sanitize_tweets(self, remove=('links', 'punctuation', 'nan'), strip=True, lower=True):
         self.twitter_data.loc[:, 'Clean_Tweets'] = self.tweets
         if 'links' in remove:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.replace('https?:\/\/.*[\r\n]*', '')
         if 'punctuation' in remove:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.translate(str.maketrans('', '', string.punctuation))
+        if 'nan' in remove:
+            self.twitter_data = self.twitter_data[self.twitter_data.Clean_Tweets.notnull()]
         if lower:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.lower()
         if strip:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.strip()
         print(self.twitter_data['Clean_Tweets'].values[0:5])
 
-    def extend_features(self, num_chars=False, split_words=False, tweet_tokenize=False, pos=False, custom=None):
+    def extend_features(
+        self,
+        num_chars=False,
+        split_words=False,
+        tweet_tokenize=False,
+        pos=False,
+        custom=None
+    ):
         if num_chars:
             self.twitter_data.loc[:, 'num_chars'] = self.tweets.str.len()
         if split_words:
