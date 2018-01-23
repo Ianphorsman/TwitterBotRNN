@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='real_fake_trump_bot',
     description="Tooling resource for analyzing and emulating donald trump's tweets",
-    url="https://github.com/Ianphorsman/TrumpBot",
+    url="https://github.com/Ianphorsman/TwitterBotRNN",
     author='Ian Horsman',
     author_email='ianphorsman@gmail.com',
     license='MIT',
