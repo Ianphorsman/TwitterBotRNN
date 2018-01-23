@@ -1,2 +1,2 @@
-from .trump_bot import TrumpBot
-from .trump_rnn import TrumpRNN
+from .preprocessor import Preprocessor
+from .rnn import RNN

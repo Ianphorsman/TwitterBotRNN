@@ -1,9 +1,9 @@
 import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from real_fake_trump_bot.trump_bot import TrumpBot
+from real_fake_trump_bot.preprocessor import Preprocessor
 
-class TrumpRNN(TrumpBot):
+class RNN(Preprocessor):
 
     def preprocess_tweets(self):
         print('Sanitizing tweets')

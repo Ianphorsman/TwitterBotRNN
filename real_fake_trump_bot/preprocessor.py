@@ -6,7 +6,7 @@ import string
 from nltk.tokenize import word_tokenize, TweetTokenizer
 import _pickle as picklerick
 
-class TrumpBot(object):
+class Preprocessor(object):
 
     def __init__(self, tweets=None, tweet_text_col='Tweet_Text'):
         # get tweets from source file or from passed in DataFrame object
