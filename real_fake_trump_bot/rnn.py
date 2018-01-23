@@ -15,7 +15,8 @@ class RNN(Preprocessor):
             batch_size=128,
             inspect_rate=50,
             hidden_layers=(16,8),
-            tweet_size=140
+            tweet_size=140,
+            dropout=0.3
     ):
         # initialize Preprocessor with DataFrame of tweets / twitter data
         super().__init__(tweets=tweets)
@@ -27,6 +28,7 @@ class RNN(Preprocessor):
         self.inspect_rate = inspect_rate
         self.hidden_layers = hidden_layers
         self.tweet_size = tweet_size
+        self.dropout = dropout
 
         # data ready for training
         self.valid_data = False
