@@ -35,7 +35,7 @@ class Char_RNN(Preprocessor):
 
     def preprocess_tweets(self):
         print('Sanitizing tweets')
-        self.sanitize_tweets(remove=('links'))
+        self.sanitize_tweets(remove=('links'), strict_size=(True, self.max_tweet_size))
 
         print('Populating lexicon with utf-8 characters')
         self.populate_char_lexicon()
@@ -120,7 +120,12 @@ class Char_RNN(Preprocessor):
         for idx in list(range(0, stop, self.batch_size)):
             yield idx % self.num_tweets, min((idx % self.num_tweets) + self.batch_size, self.num_tweets)
 
-
+    def reshape_tweets(self):
+        tweets = self.twitter_data.one_hot_encoding.values
+        #tw = np.concatenate([[tweets[0]], [tweets[1]]], axis=0)
+        print(np.unique([tweet.shape for tweet in tweets]))
+        #ana = np.concatenate([[tweet] for tweet if tweet.shape == (140, 79) in tweets], axis=0)
+        #print(ana.shape)
 
 
     def test(self):
@@ -139,7 +144,8 @@ class Char_RNN(Preprocessor):
         pass
 
 
-char_rnn = Char_RNN(iterations=100)
+char_rnn = Char_RNN(iterations=100, max_tweet_size=150)
 char_rnn.preprocess_tweets()
-char_rnn.declare_model(dropout=0.4)
-char_rnn.train()
+#char_rnn.declare_model(dropout=0.4)
+char_rnn.reshape_tweets()
+#char_rnn.train()
