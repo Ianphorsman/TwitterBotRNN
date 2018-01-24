@@ -77,10 +77,10 @@ class Char_RNN(Preprocessor):
         # generate model layers
         rnn_layers = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(size), input_keep_prob=0.5, output_keep_prob=0.5, state_keep_prob=0.5) for size in self.model_shape]
         multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
-        self.outputs, _ = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=self.X, dtype=tf.float32)
+        self.outputs, self.state = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=self.X, dtype=tf.float32)
 
         # prediction
-        self.prediction = tf.matmul(self.outputs[-1], self.out_weights) + self.out_bias
+        self.prediction = tf.matmul(tf.transpose(self.outputs[-1]), self.out_weights) + self.out_bias
 
         # loss function
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.prediction, labels=self.y))
@@ -139,8 +139,7 @@ class Char_RNN(Preprocessor):
         pass
 
 
-char_rnn = Char_RNN()
+char_rnn = Char_RNN(iterations=100)
 char_rnn.preprocess_tweets()
-l = list(map(lambda tweet: tweet.shape if tweet is not None else None, char_rnn.twitter_data.one_hot_encoding.values[1:]))
-print(l)
-pdb.set_trace()
+char_rnn.declare_model(dropout=0.4)
+char_rnn.train()

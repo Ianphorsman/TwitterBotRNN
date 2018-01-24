@@ -37,7 +37,7 @@ class Preprocessor(object):
     def save(self, obj, filename):
         picklerick.dump(obj, open("data/{}.p".format(filename), 'wb'))
 
-    def sanitize_tweets(self, remove=('links', 'punctuation', 'nan'), strip=True, lower=True):
+    def sanitize_tweets(self, remove=('links', 'punctuation', 'nan'), strip=True, lower=True, padding=(True, 140)):
         self.twitter_data.loc[:, 'Clean_Tweets'] = self.tweets
         if 'links' in remove:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.replace('https?:\/\/.*[\r\n]*', '')
@@ -49,6 +49,8 @@ class Preprocessor(object):
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.lower()
         if strip:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.strip()
+        if padding[0]:
+            self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.ljust(140)
 
     def extend_features(
         self,
