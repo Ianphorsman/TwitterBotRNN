@@ -49,7 +49,6 @@ class Preprocessor(object):
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.lower()
         if strip:
             self.twitter_data.Clean_Tweets = self.twitter_data.Clean_Tweets.str.strip()
-        print(self.twitter_data['Clean_Tweets'].values[0:5])
 
     def extend_features(
         self,
@@ -97,7 +96,7 @@ class Preprocessor(object):
 
     def one_hot_encode(self, normalize=False):
         self.twitter_data.loc[:, 'one_hot_encoding'] = self.twitter_data.label_encoding.apply(
-            lambda label_encoding: self.one_hot_encoder.transform(label_encoding).toarray() if label_encoding.shape[0] > 0 else None
+            lambda label_encoding: self.one_hot_encoder.transform(label_encoding) if label_encoding.shape[0] > 0 else None
         )
 
     def normalize(self, tweet):
