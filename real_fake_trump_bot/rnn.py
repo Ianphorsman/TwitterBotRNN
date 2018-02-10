@@ -36,7 +36,7 @@ class Char_RNN(Preprocessor):
 
     def preprocess_tweets(self):
         print('Sanitizing tweets')
-        self.sanitize_tweets(remove=('links'), strict_size=(True, self.fixed_tweet_size))
+        self.sanitize_tweets(remove=('links'), strict_size=(False, self.fixed_tweet_size))
 
         print('Populating lexicon with utf-8 characters')
         self.populate_char_lexicon()
@@ -69,9 +69,9 @@ class Char_RNN(Preprocessor):
         self.num_tweets = self.twitter_data.one_hot_encoding.values.shape[0]
 
         # initialize placeholders for input and output values
-        self.X = tf.placeholder(tf.float32, [None, self.fixed_tweet_size, self.vocab_size], name='X')
-        self.y = tf.placeholder(tf.float32, [None, self.vocab_size], name='y')
-        pdb.set_trace()
+        self.X = tf.placeholder(tf.int32, [self.batch_size, self.fixed_tweet_size - 1, self.vocab_size], name='X')
+        self.y = tf.placeholder(tf.float32, [self.batch_size, self.vocab_size], name='y')
+        #pdb.set_trace()
         #self.input = tf.unstack(self.X, self.fixed_tweet_size, 1)
 
         # initialize weights and biases
@@ -79,9 +79,9 @@ class Char_RNN(Preprocessor):
         self.out_bias = tf.Variable(tf.random_normal([self.vocab_size]), name='out_bias')
 
         # generate model layers
-        rnn_layers = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(size, state_is_tuple=True), output_keep_prob=self.dropout) for size in self.model_shape]
+        rnn_layers = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(size), output_keep_prob=self.dropout) for size in self.model_shape]
         multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
-        self.outputs, self.state = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=self.X, sequence_length=[self.fixed_tweet_size], dtype=tf.float32)
+        self.outputs, self.state = tf.nn.dynamic_rnn(cell=multi_rnn_cell, inputs=self.X, sequence_length=[self.fixed_tweet_size-1], dtype=tf.float32)
 
         # prediction
         self.prediction = tf.matmul(self.outputs[-1], self.out_weights) + self.out_bias
@@ -106,6 +106,7 @@ class Char_RNN(Preprocessor):
             i = 1
             train_X = np.concatenate([[tweet] for tweet in self.twitter_data.one_hot_encoding.values], axis=0)
             train_y = np.roll(train_X, -1, axis=1)
+            pdb.set_trace()
             #train_X = np.concatenate(self.twitter_data.one_hot_encoding.values)
             #train_y = np.roll(train_X, -1, axis=0)
             batch = self.next_batch()
@@ -114,10 +115,10 @@ class Char_RNN(Preprocessor):
                 batch_x = train_X[idx_start:idx_stop]
                 batch_y = train_y[idx_start:idx_stop]
                 sess.run(self.optimizer, feed_dict={self.X: batch_x, self.y: batch_y})
-                #if i % 50 == 0:
+                if i % 50 == 0:
                  #   acc = sess.run(self.accuracy, feed_dict={self.x: batch_x, self.y: batch_y})
-                  #  loss = sess.run(self.loss, feed_dict={self.x: batch_x, self.y: batch_y})
-                   # print(i, acc, loss)
+                    loss = sess.run(self.loss, feed_dict={self.x: batch_x, self.y: batch_y})
+                    print(i, loss)
                 i += 1
 
     def next_batch(self):
@@ -142,10 +143,11 @@ class Char_RNN(Preprocessor):
         pass
 
 
-
-#char_rnn = Char_RNN(iterations=100, batch_size=150, fixed_tweet_size=150, model_shape=(150, 150))
-#char_rnn.preprocess_tweets()
-#char_rnn.declare_model(dropout=0.4)
-#print(char_rnn.y.shape)
-#print(char_rnn.X.shape)
-#char_rnn.train()
+'''
+char_rnn = Char_RNN(iterations=100, batch_size=150, fixed_tweet_size=150, model_shape=(150, 150))
+char_rnn.preprocess_tweets()
+char_rnn.declare_model(dropout=0.4)
+print(char_rnn.y.shape)
+print(char_rnn.X.shape)
+char_rnn.train()
+'''
