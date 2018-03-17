@@ -112,7 +112,7 @@ class CharRNN(TFTweetPreprocessor):
                 #pdb.set_trace()
                 if i % self.inspect_rate == 0:
                     loss, outputs, states, logits = sess.run([self.loss, self.outputs, self.states, self.logits], feed_dict={self.X: batch_x, self.y: batch_y})
-                    print(i, loss, logits.shape)
+                    print(i, loss, outputs.shape, logits.shape)
                     if i >= 400:
                         self.gen_tweet(sess)
                 i += 1
@@ -161,24 +161,6 @@ class CharRNN(TFTweetPreprocessor):
 
         print(tweet)
         print(predicted_tweet)
-
-    def generate_tweet(self, sess, start='today we expr'):
-        predicted_tweet = start
-        predicted_tweet_2 = start
-        self.dropout = 1.0
-        initial_state = sess.run(self.rnn_cell.zero_state(self.batch_size, dtype=tf.float32))
-        #pdb.set_trace()
-        batch_x = np.atleast_2d(list([self.char_to_index[char] for char in start]))
-        states, logits = sess.run([self.test_states, self.test_logits], feed_dict={self.testX: batch_x, self.lstm_init_value: initial_state})
-        softmax = None
-        for i in range(140 - len(start)):
-            softmax = tf.nn.softmax(logits[-1])
-            output = tf.argmax(softmax, axis=1)
-            batch_x = np.atleast_2d(list([self.char_to_index[char] for char in predicted_tweet]))
-            states, logits = sess.run([self.test_states, self.test_logits], feed_dict={self.testX: batch_x, self.lstm_init_value: states})
-
-
-        return predicted_tweet
 
     def probs_to_chars(self, probs, just_chars=False):
         chars = sorted([(idx, self.index_to_char[i]) for i, idx in enumerate(probs)], key=lambda tup: tup[0], reverse=True)
